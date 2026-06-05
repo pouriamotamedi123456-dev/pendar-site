@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🕯 پندار | آرشیو نقدها</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0b14;
+      --gold: #e8b84b;
+      --amber: #c8860a;
+      --cream: #f0e6d3;
+      --smoke: #b0a0c0;
+      --card: #16112a;
+      --accent: #7c5cbf;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Vazirmatn', sans-serif;
+      overflow-x: hidden;
+    }
+    body::before {
+      content:'';
+      position:fixed; inset:0;
+      background-image:
+        radial-gradient(1px 1px at 20% 15%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 30%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 50% 65%, rgba(255,255,255,0.25) 0%, transparent 100%),
+        radial-gradient(1px 1px at 88% 75%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 12% 85%, rgba(255,255,255,0.3) 0%, transparent 100%);
+      pointer-events:none; z-index:0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative; z-index:1;
+      text-align: center;
+      padding: 3rem 1.5rem 2rem;
+      border-bottom: 1px solid rgba(124,92,191,0.2);
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin-bottom: 2rem;
+      padding: 0.5rem 1rem;
+      border: 1px solid rgba(124,92,191,0.3);
+      border-radius: 50px;
+      transition: background 0.2s;
+    }
+    .back-btn:active { background: rgba(124,92,191,0.1); }
+
+    .header-icon { font-size: 3rem; display:block; margin-bottom: 0.8rem; }
+    header h1 { font-size: 1.8rem; font-weight: 700; color: var(--cream); margin-bottom: 0.4rem; }
+    header h1 em { color: var(--gold); font-style:normal; }
+    header p { font-size: 0.85rem; color: var(--smoke); font-weight: 300; }
+
+    /* ── FILTER ── */
+    .filter-bar {
+      position: relative; z-index:1;
+      display: flex;
+      gap: 0.6rem;
+      padding: 1.5rem 1.2rem 0.5rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .filter-bar::-webkit-scrollbar { display:none; }
+    .filter-btn {
+      flex-shrink: 0;
+      padding: 0.4rem 1rem;
+      border: 1px solid rgba(124,92,191,0.3);
+      border-radius: 50px;
+      background: transparent;
+      color: var(--smoke);
+      font-family: 'Vazirmatn', sans-serif;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn.active {
+      background: rgba(124,92,191,0.2);
+      border-color: var(--accent);
+      color: var(--cream);
+    }
+
+    /* ── BOOKS LIST ── */
+    .books-list {
+      position: relative; z-index:1;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .book-card {
+      background: var(--card);
+      border: 1px solid rgba(124,92,191,0.2);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .book-card:active { border-color: var(--accent); }
+
+    .book-card-header {
+      padding: 1.5rem 1.5rem 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .book-cover {
+      width: 60px; height: 80px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+    .cover-1 { background: linear-gradient(135deg, #2a1f4a, #4a2d8a); }
+    .cover-2 { background: linear-gradient(135deg, #1a2a3a, #2a4a6a); }
+
+    .book-info { flex:1; }
+    .book-title { font-size: 1rem; font-weight: 700; color: var(--cream); line-height: 1.4; margin-bottom: 0.3rem; }
+    .book-author { font-size: 0.78rem; color: var(--accent); margin-bottom: 0.5rem; }
+    .book-badges { display:flex; gap:0.4rem; flex-wrap:wrap; }
+    .badge {
+      font-size: 0.68rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 50px;
+      border: 1px solid;
+    }
+    .badge-genre { border-color: rgba(200,134,10,0.4); color: var(--amber); background: rgba(200,134,10,0.08); }
+    .badge-year  { border-color: rgba(124,92,191,0.4); color: var(--accent); background: rgba(124,92,191,0.08); }
+
+    .book-card-body { padding: 1.2rem 1.5rem; }
+
+    .review-text {
+      font-size: 0.88rem;
+      color: var(--smoke);
+      line-height: 2;
+      font-weight: 300;
+      margin-bottom: 1rem;
+    }
+
+    .pros-cons { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.2rem; }
+    .pro, .con {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.83rem;
+      line-height: 1.7;
+      font-weight: 300;
+      padding: 0.7rem;
+      border-radius: 10px;
+    }
+    .pro { background: rgba(100,200,100,0.06); color: #a0d4a0; }
+    .con { background: rgba(200,100,100,0.06); color: #d4a0a0; }
+    .pro-icon, .con-icon { flex-shrink:0; font-size:1rem; }
+
+    .translator-note {
+      font-size: 0.8rem;
+      color: var(--smoke);
+      padding: 0.6rem 0.8rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      margin-bottom: 1.2rem;
+      font-weight: 300;
+    }
+    .translator-note span { color: var(--gold); }
+
+    .book-card-footer {
+      padding: 1rem 1.5rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(124,92,191,0.12);
+    }
+    .rating-block { display:flex; align-items:baseline; gap:0.3rem; }
+    .rating-num { font-size: 2rem; font-weight: 700; color: var(--gold); line-height:1; }
+    .rating-max { font-size: 0.8rem; color: var(--smoke); }
+    .rating-stars { font-size: 0.75rem; color: var(--gold); letter-spacing:1px; }
+
+    .recommend-tag {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--cream);
+      background: linear-gradient(135deg, rgba(124,92,191,0.3), rgba(74,45,138,0.3));
+      border: 1px solid rgba(124,92,191,0.3);
+      padding: 0.5rem 0.9rem;
+      border-radius: 50px;
+    }
+
+    .farewell {
+      font-size: 0.82rem;
+      color: rgba(176,160,192,0.6);
+      text-align: center;
+      padding: 0.5rem 1.5rem 1.5rem;
+      font-style: italic;
+      font-weight: 300;
+      line-height: 1.8;
+    }
+
+    /* ── JOIN CTA ── */
+    .join-cta {
+      position: relative; z-index:1;
+      margin: 0.5rem 1.2rem 3rem;
+      background: linear-gradient(135deg, rgba(124,92,191,0.15), rgba(42,31,74,0.3));
+      border: 1px solid rgba(124,92,191,0.25);
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    .join-cta p { font-size:0.9rem; color:var(--smoke); margin-bottom:1.2rem; font-weight:300; line-height:1.8; }
+    .btn-join {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9rem 2rem;
+      background: linear-gradient(135deg, #7c5cbf, #4a2d8a);
+      color: var(--cream);
+      text-decoration: none;
+      font-family: 'Vazirmatn', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 50px;
+      box-shadow: 0 6px 25px rgba(124,92,191,0.3);
+    }
+    .btn-join:active { opacity: 0.85; }
+
+    footer {
+      position:relative; z-index:1;
+      text-align:center;
+      padding: 1.5rem;
+      border-top: 1px solid rgba(124,92,191,0.15);
+      color: rgba(176,160,192,0.35);
+      font-size: 0.75rem;
+    }
+
+    .reveal { opacity:0; transform:translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.on { opacity:1; transform:translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <a href="index.html" class="back-btn">← بازگشت به خانه</a>
+  <span class="header-icon">📚</span>
+  <h1>آرشیو <em>نقدها</em></h1>
+  <p>همه‌ی کتاب‌هایی که پندار خونده و نقد کرده 🔮</p>
+</header>
+
+<!-- FILTER -->
+<div class="filter-bar">
+  <button class="filter-btn active">همه ✨</button>
+  <button class="filter-btn">رمان 📖</button>
+  <button class="filter-btn">کلاسیک 🏛</button>
+  <button class="filter-btn">فانتزی 🔮</button>
+</div>
+
+<!-- BOOKS -->
+<div class="books-list">
+
+  <!-- کتاب ۱ -->
+  <div class="book-card reveal">
+    <div class="book-card-header">
+      <div class="book-cover cover-2">📖</div>
+      <div class="book-info">
+        <div class="book-title">شب‌های روشن</div>
+        <div class="book-author">فئودور داستایوفسکی</div>
+        <div class="book-badges">
+          <span class="badge badge-genre">رمان کلاسیک</span>
+          <span class="badge badge-year">ادبیات روس</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="book-card-body">
+      <p class="review-text">
+        داستان در فضای سرد سن‌پترزبورگ روایت می‌شود — درست مثل همیشه‌ی داستایوفسکی.
+        مردی جوان که نامش گفته نشده تا مخاطب خودش را جای او بگذارد،
+        شخصیتی تنها و خیالباف دارد، تا اینکه در شبی، دختر گریانی به اسم ناستنکا را
+        در کنار رودخانه می‌بیند...
+        داستایوفسکی به زیبایی روایت می‌کند — به گونه‌ای که فرد خودش را جای شخصیت‌ها
+        می‌گذارد و می‌تواند کاملاً آن‌ها را درک کند.
+      </p>
+
+      <div class="pros-cons">
+        <div class="pro">
+          <span class="pro-icon">✨</span>
+          <span>شخصیت‌پردازی، فضاسازی و روایت تأثیرگذار فوق‌العاده — خودت رو وسط ماجرا حس می‌کنی، با شخصیت‌ها ذوق می‌کنی و گریه می‌کنی!</span>
+        </div>
+        <div class="con">
+          <span class="con-icon">🧛🏻</span>
+          <span>پایان مختصری که خواننده رو در سکوت رها می‌کنه</span>
+        </div>
+      </div>
+
+      <div class="translator-note">
+        🎃 ترجمه‌ی پیشنهادی: <span>سروش حبیبی</span>
+      </div>
+    </div>
+
+    <div class="book-card-footer">
+      <div>
+        <div class="rating-block">
+          <span class="rating-num">۸.۷</span>
+          <span class="rating-max">/ ۱۰</span>
+        </div>
+        <div class="rating-stars">★★★★☆</div>
+      </div>
+      <span class="recommend-tag">🪄 ارزش خوندن داره</span>
+    </div>
+
+    <p class="farewell">
+      ممنون که توی این نقد و بررسی کنار پندار بودید 🧙🏻‍♀️<br>
+      تا یک قصه و ماجرای جدید، پنداری بمونید ✨
+    </p>
+  </div>
+
+  <!-- کتاب ۲ -->
+  <div class="book-card reveal">
+    <div class="book-card-header">
+      <div class="book-cover cover-1">🌠</div>
+      <div class="book-info">
+        <div class="book-title">دالرگات — فروشگاه بزرگ خواب و رویا</div>
+        <div class="book-author">می یه‌ی لی</div>
+        <div class="book-badges">
+          <span class="badge badge-genre">فانتزی</span>
+          <span class="badge badge-year">ادبیات کره</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="book-card-body">
+      <p class="review-text">
+        فروشگاهی که هر طبقه‌اش به نوع خاصی از رویاها اختصاص داره...
+        پنی، دختر جوانی که در دالرگات استخدام می‌شه، کم‌کم می‌فهمه رویاها فقط
+        برای سرگرمی نیستن — می‌تونن به آدم‌ها کمک کنن با غم، ترس، فقدان
+        و آرزوهاشون کنار بیان. فضا و حس‌وحال این کتاب به قدری خوبه که
+        می‌تونه راه فراری از مشکلات روزمره باشه و دروازه‌ای برای امید به روزهای آینده. 🌠
+      </p>
+
+      <div class="pros-cons">
+        <div class="pro">
+          <span class="pro-icon">🕯</span>
+          <span>فضا و حس‌وحال جادویی که آدم رو از دنیای واقعی می‌بره</span>
+        </div>
+        <div class="con">
+          <span class="con-icon">🤷🏻‍♀️</span>
+          <span>شخصیت‌پردازی ضعیف و یکنواختی جریان داستان که می‌تونه حوصله‌سربر باشه</span>
+        </div>
+      </div>
+
+      <div class="translator-note">
+        ✍️ نشر مجازی | ترجمه: <span>حمیده جلیلی سهی</span>
+      </div>
+    </div>
+
+    <div class="book-card-footer">
+      <div>
+        <div class="rating-block">
+          <span class="rating-num">۷.۶</span>
+          <span class="rating-max">/ ۱۰</span>
+        </div>
+        <div class="rating-stars">★★★★☆</div>
+      </div>
+      <span class="recommend-tag">📌 پیشنهاد به ناامیدا</span>
+    </div>
+
+    <p class="farewell">
+      ممنون که توی این نقد و بررسی کنار پندار بودید 🧙🏻‍♀️<br>
+      تا یک قصه و ماجرای جدید، پنداری بمونید ✨
+    </p>
+  </div>
+
+</div>
+
+<!-- JOIN CTA -->
+<div class="join-cta reveal">
+  <p>نقدهای جدید هر هفته تو کانال منتشر می‌شه 🕯<br>عضو بشو تا چیزی از دستت نره!</p>
+  <a href="https://t.me/pendari_ha" target="_blank" class="btn-join">🔮 ورود به کانال پندار</a>
+</div>
+
+<footer>🕯 پندار | t.me/pendari_ha</footer>
+
+<script>
+  const obs = new IntersectionObserver(es => {
+    es.forEach(e => { if(e.isIntersecting) e.target.classList.add('on'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
