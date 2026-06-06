@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔐 پنل مدیریت پندار</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0b14; --card: #16112a; --accent: #7c5cbf;
+      --gold: #e8b84b; --amber: #c8860a; --cream: #f0e6d3;
+      --smoke: #b0a0c0; --red: #c0392b; --green: #27ae60;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { background:var(--bg); color:var(--cream); font-family:'Vazirmatn',sans-serif; min-height:100vh; }
+
+    /* ── LOGIN ── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem;
+    }
+    .login-box {
+      background: var(--card);
+      border: 1px solid rgba(124,92,191,0.3);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      width: 100%; max-width: 340px;
+      text-align: center;
+    }
+    .login-box .icon { font-size: 3rem; margin-bottom: 1rem; display:block; }
+    .login-box h2 { font-size: 1.3rem; color: var(--gold); margin-bottom: 0.4rem; }
+    .login-box p { font-size: 0.82rem; color: var(--smoke); margin-bottom: 2rem; font-weight:300; }
+    .inp {
+      width:100%; padding: 0.9rem 1rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(124,92,191,0.3);
+      border-radius: 10px; color: var(--cream);
+      font-family:'Vazirmatn',sans-serif; font-size:1rem;
+      text-align: center; letter-spacing: 0.2em;
+      margin-bottom: 1rem;
+    }
+    .inp:focus { outline:none; border-color: var(--accent); }
+    .btn-login {
+      width:100%; padding: 0.9rem;
+      background: linear-gradient(135deg,#7c5cbf,#4a2d8a);
+      color:var(--cream); border:none; border-radius:10px;
+      font-family:'Vazirmatn',sans-serif; font-size:1rem; font-weight:600;
+      cursor:pointer;
+    }
+    .login-error { color:#e74c3c; font-size:0.82rem; margin-top:0.7rem; display:none; }
+
+    /* ── PANEL ── */
+    #panel { display:none; }
+
+    .topbar {
+      background: var(--card);
+      border-bottom: 1px solid rgba(124,92,191,0.2);
+      padding: 1rem 1.5rem;
+      display: flex; align-items:center; justify-content:space-between;
+      position: sticky; top:0; z-index:100;
+    }
+    .topbar-title { font-size:1rem; font-weight:700; color:var(--gold); }
+    .topbar-btns { display:flex; gap:0.5rem; }
+    .btn-sm {
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px; border: 1px solid;
+      font-family:'Vazirmatn',sans-serif; font-size:0.75rem;
+      cursor:pointer; font-weight:600;
+    }
+    .btn-preview { border-color:rgba(124,92,191,0.4); color:var(--accent); background:transparent; }
+    .btn-logout  { border-color:rgba(192,57,43,0.4); color:#e74c3c; background:transparent; }
+
+    /* Tabs */
+    .tabs {
+      display:flex; overflow-x:auto; gap:0;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid rgba(124,92,191,0.15);
+      scrollbar-width:none;
+    }
+    .tabs::-webkit-scrollbar { display:none; }
+    .tab {
+      flex-shrink:0; padding: 0.9rem 1.2rem;
+      font-family:'Vazirmatn',sans-serif; font-size:0.82rem;
+      color:var(--smoke); background:transparent; border:none;
+      border-bottom: 2px solid transparent; cursor:pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+    .tab-content { display:none; padding: 1.5rem; }
+    .tab-content.active { display:block; }
+
+    /* Form elements */
+    .field { margin-bottom: 1.2rem; }
+    .field label {
+      display:block; font-size:0.78rem; color:var(--smoke);
+      margin-bottom:0.4rem; font-weight:500;
+    }
+    .field input, .field textarea, .field select {
+      width:100%; padding: 0.8rem 1rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(124,92,191,0.25);
+      border-radius: 10px; color:var(--cream);
+      font-family:'Vazirmatn',sans-serif; font-size:0.9rem;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      outline:none; border-color:var(--accent);
+    }
+    .field textarea { min-height:100px; resize:vertical; line-height:1.7; }
+    .field select option { background:#16112a; }
+
+    .section-title {
+      font-size:1rem; font-weight:700; color:var(--gold);
+      margin-bottom:1.2rem; padding-bottom:0.6rem;
+      border-bottom: 1px solid rgba(124,92,191,0.2);
+    }
+
+    .btn-save {
+      width:100%; padding:0.9rem;
+      background: linear-gradient(135deg,#7c5cbf,#4a2d8a);
+      color:var(--cream); border:none; border-radius:10px;
+      font-family:'Vazirmatn',sans-serif; font-size:0.95rem; font-weight:700;
+      cursor:pointer; margin-top:0.5rem;
+    }
+    .btn-danger {
+      padding: 0.5rem 1rem;
+      background:transparent; border:1px solid rgba(192,57,43,0.4);
+      color:#e74c3c; border-radius:8px;
+      font-family:'Vazirmatn',sans-serif; font-size:0.8rem;
+      cursor:pointer;
+    }
+
+    /* Toast */
+    .toast {
+      position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%) translateY(100px);
+      background:#27ae60; color:#fff; padding:0.8rem 1.5rem;
+      border-radius:50px; font-size:0.85rem; font-weight:600;
+      transition: transform 0.3s; z-index:999; white-space:nowrap;
+    }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+    .toast.error { background:#c0392b; }
+
+    /* Book cards in admin */
+    .book-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(124,92,191,0.2);
+      border-radius: 14px; padding: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    .book-item-header {
+      display:flex; justify-content:space-between; align-items:flex-start;
+      margin-bottom:0.8rem;
+    }
+    .book-item-title { font-size:0.95rem; font-weight:700; color:var(--cream); }
+    .book-item-author { font-size:0.78rem; color:var(--accent); margin-top:0.2rem; }
+    .book-item-rating {
+      font-size:1.2rem; font-weight:700; color:var(--gold); flex-shrink:0;
+    }
+    .book-item-actions { display:flex; gap:0.5rem; margin-top:0.8rem; }
+    .btn-edit {
+      padding:0.4rem 0.9rem; border-radius:8px;
+      background:rgba(124,92,191,0.15); border:1px solid rgba(124,92,191,0.3);
+      color:var(--accent); font-family:'Vazirmatn',sans-serif;
+      font-size:0.78rem; cursor:pointer;
+    }
+
+    /* Modal */
+    .modal-bg {
+      position:fixed; inset:0; background:rgba(0,0,0,0.7);
+      z-index:200; display:none; align-items:center; justify-content:center;
+      padding:1rem;
+    }
+    .modal-bg.open { display:flex; }
+    .modal {
+      background:var(--card); border:1px solid rgba(124,92,191,0.3);
+      border-radius:20px; padding:1.5rem; width:100%; max-width:500px;
+      max-height:90vh; overflow-y:auto;
+    }
+    .modal-header {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:1.2rem;
+    }
+    .modal-title { font-size:1rem; font-weight:700; color:var(--gold); }
+    .btn-close {
+      background:transparent; border:none; color:var(--smoke);
+      font-size:1.3rem; cursor:pointer; padding:0.2rem;
+    }
+
+    .badge-type {
+      display:inline-block; font-size:0.7rem; padding:0.2rem 0.6rem;
+      border-radius:50px; margin-right:0.4rem;
+    }
+    .badge-pdf  { background:rgba(200,134,10,0.15); border:1px solid rgba(200,134,10,0.3); color:var(--amber); }
+    .badge-video{ background:rgba(124,92,191,0.15); border:1px solid rgba(124,92,191,0.3); color:var(--accent); }
+    .badge-classic{ background:rgba(39,174,96,0.15); border:1px solid rgba(39,174,96,0.3); color:#2ecc71; }
+    .badge-fantasy{ background:rgba(142,68,173,0.15); border:1px solid rgba(142,68,173,0.3); color:#9b59b6; }
+    .badge-romance{ background:rgba(231,76,60,0.15); border:1px solid rgba(231,76,60,0.3); color:#e74c3c; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <span class="icon">🔐</span>
+    <h2>پنل مدیریت پندار</h2>
+    <p>رمز ورود رو وارد کن</p>
+    <input class="inp" type="password" id="pwd-input" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-login" onclick="doLogin()">ورود 🔮</button>
+    <p class="login-error" id="login-error">❌ رمز اشتباهه!</p>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div id="panel">
+  <div class="topbar">
+    <span class="topbar-title">🔮 پنل پندار</span>
+    <div class="topbar-btns">
+      <button class="btn-sm btn-preview" onclick="window.open('index.html')">👁 سایت</button>
+      <button class="btn-sm btn-logout" onclick="doLogout()">خروج</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('books')">📚 نقدها</button>
+    <button class="tab" onclick="showTab('add')">➕ نقد جدید</button>
+    <button class="tab" onclick="showTab('site')">🎨 متون سایت</button>
+    <button class="tab" onclick="showTab('channel')">📣 کانال</button>
+  </div>
+
+  <!-- TAB: BOOKS LIST -->
+  <div class="tab-content active" id="tab-books">
+    <div class="section-title">📚 نقدهای موجود</div>
+    <div id="books-list"></div>
+  </div>
+
+  <!-- TAB: ADD BOOK -->
+  <div class="tab-content" id="tab-add">
+    <div class="section-title" id="form-title">➕ افزودن نقد جدید</div>
+    <input type="hidden" id="edit-index" value="-1">
+
+    <div class="field">
+      <label>عنوان کتاب *</label>
+      <input type="text" id="f-title" placeholder="مثلاً: شب‌های روشن">
+    </div>
+    <div class="field">
+      <label>نویسنده *</label>
+      <input type="text" id="f-author" placeholder="مثلاً: فئودور داستایوفسکی">
+    </div>
+    <div class="field">
+      <label>ژانر</label>
+      <select id="f-genre">
+        <option value="رمان">رمان 📖</option>
+        <option value="رمان کلاسیک">رمان کلاسیک 🏛</option>
+        <option value="فانتزی">فانتزی 🔮</option>
+        <option value="علمی‌تخیلی">علمی‌تخیلی 🚀</option>
+        <option value="عاشقانه">عاشقانه 💕</option>
+        <option value="ترسناک">ترسناک 👻</option>
+        <option value="خودسازی">خودسازی ✨</option>
+        <option value="فلسفه">فلسفه 🧠</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>ادبیات / منشأ</label>
+      <input type="text" id="f-origin" placeholder="مثلاً: ادبیات روس">
+    </div>
+    <div class="field">
+      <label>متن نقد *</label>
+      <textarea id="f-review" placeholder="نقد کامل کتاب..."></textarea>
+    </div>
+    <div class="field">
+      <label>نقطه قوت ✨</label>
+      <textarea id="f-pro" placeholder="چی از کتاب خوشت اومد؟" style="min-height:70px"></textarea>
+    </div>
+    <div class="field">
+      <label>نقطه ضعف</label>
+      <textarea id="f-con" placeholder="ایراد کتاب چی بود؟" style="min-height:70px"></textarea>
+    </div>
+    <div class="field">
+      <label>مترجم پیشنهادی</label>
+      <input type="text" id="f-translator" placeholder="مثلاً: سروش حبیبی">
+    </div>
+    <div class="field">
+      <label>امتیاز پندار (از ۱۰)</label>
+      <input type="number" id="f-rating" min="0" max="10" step="0.1" placeholder="مثلاً: 8.7">
+    </div>
+    <div class="field">
+      <label>توصیه به چه کسایی؟</label>
+      <input type="text" id="f-recommend" placeholder="مثلاً: افراد ناامید">
+    </div>
+    <div class="field">
+      <label>جمله پایانی (اختیاری)</label>
+      <input type="text" id="f-farewell" placeholder="مثلاً: پنداری بمونید 🧙🏻‍♀️">
+    </div>
+
+    <div class="field">
+      <label>عکس جلد کتاب 📸</label>
+      <div id="img-preview-box" style="display:none; margin-bottom:0.8rem; text-align:center;">
+        <img id="img-preview" style="max-width:120px; max-height:160px; border-radius:10px; border:2px solid rgba(124,92,191,0.4); object-fit:cover;">
+        <br>
+        <button onclick="removeImage()" style="margin-top:0.5rem; padding:0.3rem 0.8rem; background:rgba(192,57,43,0.15); border:1px solid rgba(192,57,43,0.3); color:#e74c3c; border-radius:8px; font-family:Vazirmatn,sans-serif; font-size:0.75rem; cursor:pointer;">🗑 حذف عکس</button>
+      </div>
+      <label for="f-image" style="display:flex; align-items:center; justify-content:center; gap:0.5rem; padding:1rem; border:2px dashed rgba(124,92,191,0.3); border-radius:12px; cursor:pointer; color:var(--smoke); font-size:0.85rem; transition:border-color 0.2s;" id="img-upload-label">
+        📷 انتخاب عکس از گوشی
+      </label>
+      <input type="file" id="f-image" accept="image/*" style="display:none" onchange="handleImage(this)">
+    </div>
+
+    <button class="btn-save" onclick="saveBook()">💾 ذخیره نقد</button>
+    <button class="btn-save" style="background:rgba(255,255,255,0.05);border:1px solid rgba(124,92,191,0.3);margin-top:0.5rem" onclick="clearForm()">🗑 پاک کردن فرم</button>
+  </div>
+
+  <!-- TAB: SITE TEXTS -->
+  <div class="tab-content" id="tab-site">
+    <div class="section-title">🎨 متون صفحه اصلی</div>
+
+    <div class="field">
+      <label>شعر بالای سایت (خط اول)</label>
+      <input type="text" id="s-poem1" placeholder="به نام آن‌که جان را فکرت آموخت">
+    </div>
+    <div class="field">
+      <label>شعر بالای سایت (خط دوم)</label>
+      <input type="text" id="s-poem2" placeholder="چراغ دل به نور جان برافروخت">
+    </div>
+    <div class="field">
+      <label>بیو (توضیح کانال)</label>
+      <textarea id="s-bio" placeholder="من پندارم..."></textarea>
+    </div>
+    <div class="field">
+      <label>متن دکمه ورود به کانال</label>
+      <input type="text" id="s-btn" placeholder="وارد دنیای جادو شو">
+    </div>
+    <div class="field">
+      <label>لینک کانال تلگرام</label>
+      <input type="text" id="s-link" placeholder="https://t.me/pendari_ha">
+    </div>
+
+    <button class="btn-save" onclick="saveSite()">💾 ذخیره تغییرات</button>
+  </div>
+
+  <!-- TAB: CHANNEL -->
+  <div class="tab-content" id="tab-channel">
+    <div class="section-title">📣 اطلاعات کانال</div>
+
+    <div class="field">
+      <label>اسم کانال</label>
+      <input type="text" id="c-name" placeholder="🕯 پندار 🕯">
+    </div>
+    <div class="field">
+      <label>موضوع کانال</label>
+      <input type="text" id="c-subject" placeholder="نقد و بررسی کتاب">
+    </div>
+    <div class="field">
+      <label>لینک تلگرام</label>
+      <input type="text" id="c-link" placeholder="https://t.me/pendari_ha">
+    </div>
+
+    <button class="btn-save" onclick="saveChannel()">💾 ذخیره</button>
+
+    <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid rgba(124,92,191,0.15)">
+      <div class="section-title" style="color:#e74c3c">⚠️ خطرناک</div>
+      <button class="btn-danger" onclick="resetAll()">🗑 پاک کردن همه داده‌ها</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ویرایش -->
+<div class="modal-bg" id="edit-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">✏️ ویرایش نقد</span>
+      <button class="btn-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PASS = "pendar1403";
+const STORAGE_KEY = "pendar_data";
+
+// ── AUTH ──────────────────────────────
+function doLogin() {
+  const val = document.getElementById('pwd-input').value;
+  if(val === PASS) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+    loadAll();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+function doLogout() {
+  document.getElementById('panel').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pwd-input').value = '';
+}
+
+// ── DATA ──────────────────────────────
+function getData() {
+  const d = localStorage.getItem(STORAGE_KEY);
+  return d ? JSON.parse(d) : {
+    books: [
+      {
+        title:"شب‌های روشن", author:"فئودور داستایوفسکی",
+        genre:"رمان کلاسیک", origin:"ادبیات روس",
+        review:"داستان در فضای سرد سن‌پترزبورگ روایت می‌شود. مردی جوان که نامش گفته نشده تا مخاطب خودش را جای او بگذارد، شخصیتی تنها و خیالباف دارد، تا اینکه در شبی، دختر گریانی به اسم ناستنکا را در کنار رودخانه می‌بیند.",
+        pro:"شخصیت‌پردازی، فضاسازی و روایت تأثیرگذار فوق‌العاده — خودت رو وسط ماجرا حس می‌کنی!",
+        con:"پایان مختصری که خواننده رو در سکوت رها می‌کنه",
+        translator:"سروش حبیبی", rating:"8.7",
+        recommend:"همه", farewell:"پنداری بمونید 🧙🏻‍♀️"
+      },
+      {
+        title:"دالرگات — فروشگاه بزرگ خواب و رویا", author:"می یه‌ی لی",
+        genre:"فانتزی", origin:"ادبیات کره",
+        review:"فروشگاهی که هر طبقه‌اش به نوع خاصی از رویاها اختصاص داره. پنی دختر جوانی که در دالرگات استخدام می‌شه، کم‌کم می‌فهمه رویاها فقط برای سرگرمی نیستن.",
+        pro:"فضا و حس‌وحال جادویی که آدم رو از دنیای واقعی می‌بره",
+        con:"شخصیت‌پردازی ضعیف و یکنواختی جریان داستان",
+        translator:"حمیده جلیلی سهی | نشر مجازی", rating:"7.6",
+        recommend:"افراد ناامید", farewell:"پنداری بمونید 🧙🏻‍♀️"
+      }
+    ],
+    site: {
+      poem1:"به نام آن‌که جان را فکرت آموخت",
+      poem2:"چراغ دل به نور جان برافروخت ✨",
+      bio:"من پندارم 🧙🏻‍♀️\nهمراه من بیا تا وارد دنیای\nقصه، فیلم و کتاب بشیم ⏳️\nاینجا یه کتاب‌خونه‌ی عادی نیست،\nاینجا «جادوییه»! 🔮",
+      btn:"وارد دنیای جادو شو",
+      link:"https://t.me/pendari_ha"
+    },
+    channel: { name:"🕯 پندار 🕯", subject:"نقد و بررسی کتاب", link:"https://t.me/pendari_ha" }
+  };
+}
+function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
+
+// ── LOAD ALL ──────────────────────────
+function loadAll() {
+  renderBooks();
+  loadSiteForm();
+  loadChannelForm();
+}
+
+// ── TABS ──────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    const names=['books','add','site','channel'];
+    t.classList.toggle('active', names[i]===name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ── BOOKS ─────────────────────────────
+function renderBooks() {
+  const d = getData();
+  const el = document.getElementById('books-list');
+  if(!d.books.length){ el.innerHTML='<p style="color:var(--smoke);text-align:center;padding:2rem">هنوز نقدی ثبت نشده</p>'; return; }
+  el.innerHTML = d.books.map((b,i)=>`
+    <div class="book-item">
+      <div class="book-item-header">
+        <div>
+          <div class="book-item-title">${b.title}</div>
+          <div class="book-item-author">${b.author}</div>
+          <div style="margin-top:0.4rem">
+            <span class="badge-type badge-${b.genre==='فانتزی'?'fantasy':b.genre==='رمان کلاسیک'?'classic':'pdf'}">${b.genre}</span>
+          </div>
+        </div>
+        <div class="book-item-rating">${b.rating}</div>
+      </div>
+      <div class="book-item-actions">
+        <button class="btn-edit" onclick="editBook(${i})">✏️ ویرایش</button>
+        <button class="btn-danger" onclick="deleteBook(${i})">🗑 حذف</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function editBook(i) {
+  const d = getData();
+  const b = d.books[i];
+  document.getElementById('edit-index').value = i;
+  document.getElementById('form-title').textContent = '✏️ ویرایش نقد';
+  document.getElementById('f-title').value = b.title||'';
+  document.getElementById('f-author').value = b.author||'';
+  document.getElementById('f-genre').value = b.genre||'رمان';
+  document.getElementById('f-origin').value = b.origin||'';
+  document.getElementById('f-review').value = b.review||'';
+  document.getElementById('f-pro').value = b.pro||'';
+  document.getElementById('f-con').value = b.con||'';
+  document.getElementById('f-translator').value = b.translator||'';
+  document.getElementById('f-rating').value = b.rating||'';
+  document.getElementById('f-recommend').value = b.recommend||'';
+  document.getElementById('f-farewell').value = b.farewell||'';
+  // عکس
+  window._pendingImage = null;
+  if(b.image) {
+    document.getElementById('img-preview').src = b.image;
+    document.getElementById('img-preview-box').style.display = 'block';
+    document.getElementById('img-upload-label').textContent = '✅ عکس موجود است';
+    window._pendingImage = b.image;
+  } else {
+    clearImageForm();
+  }
+  showTab('add');
+  window.scrollTo(0,0);
+}
+
+function deleteBook(i) {
+  if(!confirm('مطمئنی؟ این نقد حذف می‌شه!')) return;
+  const d = getData();
+  d.books.splice(i,1);
+  saveData(d);
+  renderBooks();
+  showToast('✅ نقد حذف شد');
+}
+
+function saveBook() {
+  const title = document.getElementById('f-title').value.trim();
+  const author = document.getElementById('f-author').value.trim();
+  const review = document.getElementById('f-review').value.trim();
+  if(!title||!author||!review){ showToast('❌ عنوان، نویسنده و متن نقد اجباریه','error'); return; }
+
+  const book = {
+    title, author,
+    genre: document.getElementById('f-genre').value,
+    origin: document.getElementById('f-origin').value.trim(),
+    review,
+    pro: document.getElementById('f-pro').value.trim(),
+    con: document.getElementById('f-con').value.trim(),
+    translator: document.getElementById('f-translator').value.trim(),
+    rating: document.getElementById('f-rating').value.trim(),
+    recommend: document.getElementById('f-recommend').value.trim(),
+    farewell: document.getElementById('f-farewell').value.trim(),
+    image: window._pendingImage || (()=>{
+      const idx2 = parseInt(document.getElementById('edit-index').value);
+      if(idx2>=0){ const d2=getData(); return d2.books[idx2]?.image||null; }
+      return null;
+    })(),
+  };
+
+  const d = getData();
+  const idx = parseInt(document.getElementById('edit-index').value);
+  if(idx >= 0) { d.books[idx] = book; }
+  else { d.books.unshift(book); }
+  saveData(d);
+  clearForm();
+  renderBooks();
+  showTab('books');
+  showToast('✅ نقد ذخیره شد!');
+}
+
+function handleImage(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const data = e.target.result;
+    document.getElementById('img-preview').src = data;
+    document.getElementById('img-preview-box').style.display = 'block';
+    document.getElementById('img-upload-label').textContent = '✅ عکس انتخاب شد';
+    window._pendingImage = data;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeImage() {
+  window._pendingImage = null;
+  document.getElementById('f-image').value = '';
+  document.getElementById('img-preview-box').style.display = 'none';
+  document.getElementById('img-upload-label').textContent = '📷 انتخاب عکس از گوشی';
+}
+
+function clearImageForm() {
+  window._pendingImage = null;
+  document.getElementById('f-image').value = '';
+  document.getElementById('img-preview-box').style.display = 'none';
+  document.getElementById('img-upload-label').textContent = '📷 انتخاب عکس از گوشی';
+}
+  ['f-title','f-author','f-origin','f-review','f-pro','f-con','f-translator','f-rating','f-recommend','f-farewell'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  document.getElementById('edit-index').value = '-1';
+  document.getElementById('form-title').textContent = '➕ افزودن نقد جدید';
+  clearImageForm();
+}
+
+// ── SITE ──────────────────────────────
+function loadSiteForm() {
+  const d = getData();
+  document.getElementById('s-poem1').value = d.site.poem1||'';
+  document.getElementById('s-poem2').value = d.site.poem2||'';
+  document.getElementById('s-bio').value = d.site.bio||'';
+  document.getElementById('s-btn').value = d.site.btn||'';
+  document.getElementById('s-link').value = d.site.link||'';
+}
+function saveSite() {
+  const d = getData();
+  d.site = {
+    poem1: document.getElementById('s-poem1').value,
+    poem2: document.getElementById('s-poem2').value,
+    bio:   document.getElementById('s-bio').value,
+    btn:   document.getElementById('s-btn').value,
+    link:  document.getElementById('s-link').value,
+  };
+  saveData(d);
+  showToast('✅ متون سایت ذخیره شد!');
+}
+
+// ── CHANNEL ───────────────────────────
+function loadChannelForm() {
+  const d = getData();
+  document.getElementById('c-name').value = d.channel.name||'';
+  document.getElementById('c-subject').value = d.channel.subject||'';
+  document.getElementById('c-link').value = d.channel.link||'';
+}
+function saveChannel() {
+  const d = getData();
+  d.channel = {
+    name:    document.getElementById('c-name').value,
+    subject: document.getElementById('c-subject').value,
+    link:    document.getElementById('c-link').value,
+  };
+  saveData(d);
+  showToast('✅ اطلاعات کانال ذخیره شد!');
+}
+
+function resetAll() {
+  if(!confirm('⚠️ همه داده‌ها پاک می‌شه! مطمئنی؟')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  showToast('🗑 همه داده‌ها پاک شد');
+  loadAll();
+}
+
+// ── MODAL ─────────────────────────────
+function closeModal() { document.getElementById('edit-modal').classList.remove('open'); }
+
+// ── TOAST ─────────────────────────────
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type?' '+type:'');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
