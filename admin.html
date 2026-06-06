@@ -201,7 +201,7 @@
 <body>
 
 <!-- LOGIN -->
-<div id="login-screen">
+<div id="login-screen" style="display:none">
   <div class="login-box">
     <span class="icon">🔐</span>
     <h2>پنل مدیریت پندار</h2>
@@ -213,7 +213,7 @@
 </div>
 
 <!-- PANEL -->
-<div id="panel">
+<div id="panel" style="display:block">
   <div class="topbar">
     <span class="topbar-title">🔮 پنل پندار</span>
     <div class="topbar-btns">
@@ -379,8 +379,9 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const PASS = "pendar1403";
 const STORAGE_KEY = "pendar_data";
+
+window.addEventListener('DOMContentLoaded', loadAll);
 
 // ── AUTH ──────────────────────────────
 function doLogin() {
@@ -644,6 +645,8 @@ function showToast(msg, type='') {
   t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'), 2500);
 }
+
+window.addEventListener('DOMContentLoaded', loadAll);
 </script>
 </body>
 </html>
