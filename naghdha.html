@@ -402,3 +402,68 @@
 </script>
 </body>
 </html>
+<script>
+// بارگذاری داده از پنل مدیریت
+const STORAGE_KEY = "pendar_data";
+function getData() {
+  const d = localStorage.getItem(STORAGE_KEY);
+  return d ? JSON.parse(d) : null;
+}
+
+function genreClass(g) {
+  if(g==='فانتزی') return 'badge-year';
+  if(g==='رمان کلاسیک'||g==='کلاسیک') return 'badge-genre';
+  return 'badge-genre';
+}
+
+function renderFromAdmin() {
+  const d = getData();
+  if(!d || !d.books) return;
+  const container = document.querySelector('.books-list');
+  if(!container) return;
+  container.innerHTML = d.books.map(b => `
+    <div class="book-card reveal">
+      <div class="book-card-header">
+        <div class="book-cover cover-1" style="${b.image?`background-image:url('${b.image}');background-size:cover;background-position:center;font-size:0`:''}">
+          ${b.image?'':'📖'}
+        </div>
+        <div class="book-info">
+          <div class="book-title">${b.title}</div>
+          <div class="book-author">${b.author}${b.translator?` | ${b.translator}`:''}</div>
+          <div class="book-badges">
+            <span class="badge badge-genre">${b.genre}</span>
+            ${b.origin?`<span class="badge badge-year">${b.origin}</span>`:''}
+          </div>
+        </div>
+      </div>
+      <div class="book-card-body">
+        <p class="review-text">${b.review.replace(/\n/g,'<br>')}</p>
+        <div class="pros-cons">
+          ${b.pro?`<div class="pro"><span class="pro-icon">✨</span><span>${b.pro}</span></div>`:''}
+          ${b.con?`<div class="con"><span class="con-icon">🤷🏻‍♀️</span><span>${b.con}</span></div>`:''}
+        </div>
+        ${b.translator?`<div class="translator-note">✍️ ترجمه‌ی پیشنهادی: <span>${b.translator}</span></div>`:''}
+      </div>
+      <div class="book-card-footer">
+        <div>
+          <div class="rating-block">
+            <span class="rating-num">${b.rating?Number(b.rating).toLocaleString('fa'):'-'}</span>
+            <span class="rating-max">/ ۱۰</span>
+          </div>
+          <div class="rating-stars">★★★★☆</div>
+        </div>
+        ${b.recommend?`<span class="recommend-tag">📌 پیشنهاد به ${b.recommend}</span>`:''}
+      </div>
+      ${b.farewell?`<p class="farewell">ممنون که توی این نقد و بررسی کنار پندار بودید 🧙🏻‍♀️<br>تا یک قصه و ماجرای جدید، ${b.farewell}</p>`:''}
+    </div>
+  `).join('');
+
+  // re-observe for reveal
+  const obs2 = new IntersectionObserver(es => {
+    es.forEach(e => { if(e.isIntersecting) e.target.classList.add('on'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => obs2.observe(el));
+}
+
+window.addEventListener('DOMContentLoaded', renderFromAdmin);
+</script>
